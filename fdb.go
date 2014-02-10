@@ -1,6 +1,7 @@
 package tokyocabinet
 
 // #cgo pkg-config: tokyocabinet
+// #include <math.h>
 // #include <tcfdb.h>
 import "C"
 
@@ -124,7 +125,7 @@ func (db *FDB) AddDouble(key int64, value float64) (newvalue float64, err error)
 	res := C.tcfdbadddouble(db.c_db,
 		C.int64_t(key),
 		C.double(value))
-	if C.isnan(res) != 0 {
+	if isnan(res) {
 		err = db.LastError()
 	}
 	newvalue = float64(res)

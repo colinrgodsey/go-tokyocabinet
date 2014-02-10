@@ -1,6 +1,7 @@
 package tokyocabinet
 
 // #cgo pkg-config: tokyocabinet
+// #include <math.h>
 // #include <tcbdb.h>
 import "C"
 
@@ -130,7 +131,7 @@ func (db *BDB) AddDouble(key []byte, value float64) (newvalue float64, err error
 	res := C.tcbdbadddouble(db.c_db,
 		unsafe.Pointer(&key[0]), C.int(len(key)),
 		C.double(value))
-	if C.isnan(res) != 0 {
+	if isnan(res) {
 		err = db.LastError()
 	}
 	newvalue = float64(res)

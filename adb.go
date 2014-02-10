@@ -103,7 +103,7 @@ func (db *ADB) AddDouble(key []byte, value float64) (newvalue float64, err error
 	res := C.tcadbadddouble(db.c_db,
 		unsafe.Pointer(&key[0]), C.int(len(key)),
 		C.double(value))
-	if C.isnan(res) != 0 {
+	if isnan(res) {
 		err = errors.New(ERR_MSG)
 	}
 	newvalue = float64(res)
