@@ -35,8 +35,5 @@ const TCDBTFIXED int = C.TCDBTFIXED
 const TCDBTTABLE int = C.TCDBTTABLE
 
 func ECodeName(ecode int) string {
-    return C.GoString(C.tcerrmsg(C.int(ecode)))
+	return C.GoString(C.tcerrmsg(C.int(ecode)))
 }
-
-
-
