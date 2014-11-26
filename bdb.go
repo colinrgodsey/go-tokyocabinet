@@ -176,14 +176,14 @@ func (db *BDB) Range(startKey []byte, startInclusive bool, endKey []byte,
 	endInclusive bool, max int) (keys [][]byte, err error) {
 
 	var startKeyLen int = 0
-	var startKeyC unsafe.Pointer = nil
+	var startKeyC unsafe.Pointer
 	if startKey != nil {
 		startKeyLen = len(startKey)
 		startKeyC = unsafe.Pointer(&startKey[0])
 	}
 
 	var endKeyLen int = 0
-	var endKeyC unsafe.Pointer = nil
+	var endKeyC unsafe.Pointer
 	if endKey != nil {
 		endKeyLen = len(startKey)
 		endKeyC = unsafe.Pointer(&endKey[0])
