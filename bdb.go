@@ -3,7 +3,6 @@ package tokyocabinet
 // #cgo pkg-config: tokyocabinet
 // #include <math.h>
 // #include <tcbdb.h>
-// #include <tcutil.h>
 import "C"
 
 import "errors"
