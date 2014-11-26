@@ -175,11 +175,21 @@ func (db *BDB) Size(key []byte) (out int, err error) {
 func (db *BDB) Range(startKey []byte, startInclusive bool, endKey []byte,
 	endInclusive bool, max int) (keys [][]byte, err error) {
 
+	var startKeyLen int = 0
+	if startKey != nil {
+		startKeyLen = len(startKey)
+	}
+
+	var endKeyLen int = 0
+	if endKey != nil {
+		endKeyLen = len(startKey)
+	}
+
 	//TCBDB *bdb, const void *bkbuf, int bksiz, bool binc, const void *ekbuf, int eksiz, bool einc, int max
 	resList := C.tcbdbrange(
 		db.c_db,
-		unsafe.Pointer(&startKey[0]), C.int(len(startKey)), C.bool(startInclusive),
-		unsafe.Pointer(&endKey[0]), C.int(len(endKey)), C.bool(endInclusive),
+		unsafe.Pointer(&startKey[0]), C.int(startKeyLen), C.bool(startInclusive),
+		unsafe.Pointer(&endKey[0]), C.int(endKeyLen), C.bool(endInclusive),
 		C.int(max))
 
 	num := int(C.tclistnum(resList))
