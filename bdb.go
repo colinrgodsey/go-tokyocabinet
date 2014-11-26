@@ -3,6 +3,7 @@ package tokyocabinet
 // #cgo pkg-config: tokyocabinet
 // #include <math.h>
 // #include <tcbdb.h>
+// #include <tcutil.h>
 import "C"
 
 import "errors"
@@ -167,6 +168,40 @@ func (db *BDB) Size(key []byte) (out int, err error) {
 	} else {
 		out = int(res)
 	}
+	return
+}
+
+/* negative max for infinite */
+func (db *BDB) Range(startKey []byte, startInclusive bool, endKey []byte,
+	endInclusive bool, max int) (keys [][]byte, err error) {
+
+	//TCBDB *bdb, const void *bkbuf, int bksiz, bool binc, const void *ekbuf, int eksiz, bool einc, int max
+	resList := C.tcbdbrange(
+		db.c_db,
+		unsafe.Pointer(&startKey[0]), C.int(len(startKey)), C.bool(startInclusive),
+		unsafe.Pointer(&endKey[0]), C.int(len(endKey)), C.bool(endInclusive),
+		C.int(max))
+
+	num := int(C.tclistnum(resList))
+
+	keys = make([][]byte, 0)
+	for i := 0; i < num; i++ {
+		var size C.int
+		keyDat := C.tclistval(resList, C.int(i), &size)
+		var key []byte
+
+		if keyDat != nil {
+			defer C.free(unsafe.Pointer(keyDat))
+			key = C.GoBytes(keyDat, size)
+		} else {
+			err = errors.New("Failed to retrieve tclist value!")
+			keys = nil
+			return
+		}
+
+		keys = append(keys, key)
+	}
+
 	return
 }
 
