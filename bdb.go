@@ -26,7 +26,7 @@ const BDBONOLCK int = C.BDBONOLCK
 const BDBOLCKNB int = C.BDBOLCKNB
 
 func ECodeNameBDB(ecode int) string {
-	return C.GoString(C.tcbdberrmsg(C.int(ecode)))
+	return "BDB error: " + C.GoString(C.tcbdberrmsg(C.int(ecode)))
 }
 
 type BDB struct {
@@ -35,6 +35,9 @@ type BDB struct {
 
 func NewBDB() *BDB {
 	c_db := C.tcbdbnew()
+	if c_db == nil || unsafe.Pointer(c_db) == nil {
+		panic("c_db is NULL!")
+	}
 	return &BDB{c_db}
 }
 
@@ -148,6 +151,10 @@ func (db *BDB) Remove(key []byte) (err error) {
 }
 
 func (db *BDB) Get(key []byte) (out []byte, err error) {
+	if len(key) == 0 {
+		return nil, errors.New("no blank keys")
+	}
+
 	var size C.int
 	rec := C.tcbdbget(db.c_db,
 		unsafe.Pointer(&key[0]), C.int(len(key)),
@@ -189,7 +196,6 @@ func (db *BDB) Range(startKey []byte, startInclusive bool, endKey []byte,
 		endKeyC = unsafe.Pointer(&endKey[0])
 	}
 
-	//TCBDB *bdb, const void *bkbuf, int bksiz, bool binc, const void *ekbuf, int eksiz, bool einc, int max
 	resList := C.tcbdbrange(
 		db.c_db,
 		startKeyC, C.int(startKeyLen), C.bool(startInclusive),
