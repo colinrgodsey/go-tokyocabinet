@@ -5,7 +5,6 @@ package tokyocabinet
 // #include <tcbdb.h>
 import "C"
 
-import "errors"
 import "unsafe"
 
 const BDBFOPEN int = C.BDBFOPEN
@@ -206,9 +205,7 @@ func (db *BDB) Range(startKey []byte, startInclusive bool, endKey []byte,
 			defer C.free(unsafe.Pointer(keyDat))
 			key = C.GoBytes(keyDat, size)
 		} else {
-			err = errors.New("Failed to retrieve tclist value!")
-			keys = nil
-			return
+			panic("Failed to retrieve tclist value!")
 		}
 
 		keys = append(keys, key)
