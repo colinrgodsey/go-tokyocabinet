@@ -25,7 +25,7 @@ const BDBONOLCK int = C.BDBONOLCK
 const BDBOLCKNB int = C.BDBOLCKNB
 
 func ECodeNameBDB(ecode int) string {
-	return "BDB error: " + C.GoString(C.tcbdberrmsg(C.int(ecode)))
+	return C.GoString(C.tcbdberrmsg(C.int(ecode)))
 }
 
 type BDB struct {
