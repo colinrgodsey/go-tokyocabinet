@@ -46,7 +46,6 @@ func (db *BDB) LastECode() int {
 }
 
 func (db *BDB) LastError() error {
-	//return errors.New(ECodeNameBDB(db.LastECode()))
 	code := db.LastECode()
 	return NewTokyoCabinetError(code, ECodeNameBDB(code))
 }
