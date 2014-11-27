@@ -4,7 +4,6 @@ package tokyocabinet
 // #include <tcadb.h>
 import "C"
 
-import "errors"
 import "unsafe"
 
 // abstract database doesn't provide detailed error messages
@@ -27,35 +26,35 @@ func (db *ADB) Open(path string) (err error) {
 	c_path := C.CString(path)
 	defer C.free(unsafe.Pointer(c_path))
 	if !C.tcadbopen(db.c_db, c_path) {
-		err = errors.New(ERR_MSG)
+		err = NewTokyoCabinetError(0, ERR_MSG)
 	}
 	return
 }
 
 func (db *ADB) Close() (err error) {
 	if !C.tcadbclose(db.c_db) {
-		err = errors.New(ERR_MSG)
+		err = NewTokyoCabinetError(0, ERR_MSG)
 	}
 	return
 }
 
 func (db *ADB) BeginTxn() (err error) {
 	if !C.tcadbtranbegin(db.c_db) {
-		err = errors.New(ERR_MSG)
+		err = NewTokyoCabinetError(0, ERR_MSG)
 	}
 	return
 }
 
 func (db *ADB) CommitTxn() (err error) {
 	if !C.tcadbtrancommit(db.c_db) {
-		err = errors.New(ERR_MSG)
+		err = NewTokyoCabinetError(0, ERR_MSG)
 	}
 	return
 }
 
 func (db *ADB) AbortTxn() (err error) {
 	if !C.tcadbtranabort(db.c_db) {
-		err = errors.New(ERR_MSG)
+		err = NewTokyoCabinetError(0, ERR_MSG)
 	}
 	return
 }
@@ -64,7 +63,7 @@ func (db *ADB) Put(key []byte, value []byte) (err error) {
 	if !C.tcadbput(db.c_db,
 		unsafe.Pointer(&key[0]), C.int(len(key)),
 		unsafe.Pointer(&value[0]), C.int(len(value))) {
-		err = errors.New(ERR_MSG)
+		err = NewTokyoCabinetError(0, ERR_MSG)
 	}
 	return
 }
@@ -83,7 +82,7 @@ func (db *ADB) PutCat(key []byte, value []byte) (err error) {
 	if !C.tcadbputcat(db.c_db,
 		unsafe.Pointer(&key[0]), C.int(len(key)),
 		unsafe.Pointer(&value[0]), C.int(len(value))) {
-		err = errors.New(ERR_MSG)
+		err = NewTokyoCabinetError(0, ERR_MSG)
 	}
 	return
 }
@@ -93,7 +92,7 @@ func (db *ADB) AddInt(key []byte, value int) (newvalue int, err error) {
 		unsafe.Pointer(&key[0]), C.int(len(key)),
 		C.int(value))
 	if res == C.INT_MIN {
-		err = errors.New(ERR_MSG)
+		err = NewTokyoCabinetError(0, ERR_MSG)
 	}
 	newvalue = int(res)
 	return
@@ -104,7 +103,7 @@ func (db *ADB) AddDouble(key []byte, value float64) (newvalue float64, err error
 		unsafe.Pointer(&key[0]), C.int(len(key)),
 		C.double(value))
 	if isnan(res) {
-		err = errors.New(ERR_MSG)
+		err = NewTokyoCabinetError(0, ERR_MSG)
 	}
 	newvalue = float64(res)
 	return
@@ -113,7 +112,7 @@ func (db *ADB) AddDouble(key []byte, value float64) (newvalue float64, err error
 func (db *ADB) Remove(key []byte) (err error) {
 	if !C.tcadbout(db.c_db,
 		unsafe.Pointer(&key[0]), C.int(len(key))) {
-		err = errors.New(ERR_MSG)
+		err = NewTokyoCabinetError(0, ERR_MSG)
 	}
 	return
 }
@@ -127,7 +126,7 @@ func (db *ADB) Get(key []byte) (out []byte, err error) {
 		defer C.free(unsafe.Pointer(rec))
 		out = C.GoBytes(rec, size)
 	} else {
-		err = errors.New(ERR_MSG)
+		err = NewTokyoCabinetError(0, ERR_MSG)
 	}
 	return
 }
@@ -135,7 +134,7 @@ func (db *ADB) Get(key []byte) (out []byte, err error) {
 func (db *ADB) Size(key []byte) (out int, err error) {
 	res := C.tcadbvsiz(db.c_db, unsafe.Pointer(&key[0]), C.int(len(key)))
 	if res < 0 {
-		err = errors.New(ERR_MSG)
+		err = NewTokyoCabinetError(0, ERR_MSG)
 	} else {
 		out = int(res)
 	}
@@ -146,7 +145,7 @@ func (db *ADB) IterKeys() (c chan []byte, e chan error) {
 	c = make(chan []byte)
 	e = make(chan error)
 	if !C.tcadbiterinit(db.c_db) {
-		e <- errors.New(ERR_MSG)
+		e <- NewTokyoCabinetError(0, ERR_MSG)
 		close(c)
 		close(e)
 		return
@@ -170,7 +169,7 @@ func (db *ADB) IterKeys() (c chan []byte, e chan error) {
 
 func (db *ADB) Sync() (err error) {
 	if !C.tcadbsync(db.c_db) {
-		err = errors.New(ERR_MSG)
+		err = NewTokyoCabinetError(0, ERR_MSG)
 	}
 	return
 }

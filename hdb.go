@@ -5,7 +5,6 @@ package tokyocabinet
 // #include <tchdb.h>
 import "C"
 
-import "errors"
 import "unsafe"
 
 const HDBFOPEN int = C.HDBFOPEN
@@ -46,7 +45,8 @@ func (db *HDB) LastECode() int {
 }
 
 func (db *HDB) LastError() error {
-	return errors.New(ECodeNameHDB(db.LastECode()))
+	code := db.LastECode()
+	return NewTokyoCabinetError(code, ECodeNameHDB(code))
 }
 
 func (db *HDB) Open(path string, omode int) (err error) {

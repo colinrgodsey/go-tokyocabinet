@@ -5,7 +5,6 @@ package tokyocabinet
 // #include <tcfdb.h>
 import "C"
 
-import "errors"
 import "unsafe"
 
 const FDBFOPEN int = C.FDBFOPEN
@@ -40,7 +39,8 @@ func (db *FDB) LastECode() int {
 }
 
 func (db *FDB) LastError() error {
-	return errors.New(ECodeNameFDB(db.LastECode()))
+	code := db.LastECode()
+	return NewTokyoCabinetError(code, ECodeNameFDB(code))
 }
 
 func (db *FDB) Open(path string, omode int) (err error) {
