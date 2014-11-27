@@ -46,7 +46,9 @@ func (db *BDB) LastECode() int {
 }
 
 func (db *BDB) LastError() error {
-	return errors.New(ECodeNameBDB(db.LastECode()))
+	//return errors.New(ECodeNameBDB(db.LastECode()))
+	code := db.LastECode()
+	return NewTokyoCabinetError(code, ECodeNameBDB(code))
 }
 
 func (db *BDB) Open(path string, omode int) (err error) {
@@ -146,7 +148,7 @@ func (db *BDB) Remove(key []byte) (err error) {
 	return
 }
 
-func (db *BDB) Get(key []byte) (out []byte, err error) {
+func (db *BDB) Get(key []byte) (out []byte) {
 	var size C.int
 	rec := C.tcbdbget(db.c_db,
 		unsafe.Pointer(&key[0]), C.int(len(key)),
@@ -154,9 +156,8 @@ func (db *BDB) Get(key []byte) (out []byte, err error) {
 	if rec != nil {
 		defer C.free(unsafe.Pointer(rec))
 		out = C.GoBytes(rec, size)
-	} else {
-		err = db.LastError()
 	}
+
 	return
 }
 
